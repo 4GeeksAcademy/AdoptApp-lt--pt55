@@ -10,6 +10,23 @@ import { Home } from "./pages/Home";
 import { Single } from "./pages/Single";
 import { Demo } from "./pages/Demo";
 
+import { Users } from "./pages/Users/Users";
+import { AddUsers } from "./pages/Users/AddUsers";
+import { EditUsers } from "./pages/Users/EditUsers";
+import { ViewUsers } from "./pages/Users/ViewUsers";
+
+import { Publications } from "./pages/Publications/Publications";
+import { AddPublications } from "./pages/Publications/AddPublications";
+import { EditPublications } from "./pages/Publications/EditPublications";
+import { ViewPublications } from "./pages/Publications/ViewPublications";
+
+import { Media } from "./pages/Media/Media";
+import { AddMedia } from "./pages/Media/AddMedia";
+import { EditMedia } from "./pages/Media/EditMedia";
+import { ViewMedia } from "./pages/Media/ViewMedia";
+
+// Create the router using createBrowserRouter and createRoutesFromElements
+
 export const router = createBrowserRouter(
     createRoutesFromElements(
     // CreateRoutesFromElements function allows you to build route elements declaratively.
@@ -25,6 +42,23 @@ export const router = createBrowserRouter(
         <Route path= "/" element={<Home />} />
         <Route path="/single/:theId" element={ <Single />} />  {/* Dynamic route for single items */}
         <Route path="/demo" element={<Demo />} />
+
+        <Route path="/users" element={<Users />} />
+        <Route path="/users/addUser" element={<AddUsers />} />
+        <Route path="/users/edit/:userId" element={<EditUsers />} />
+        <Route path="/users/view/:userId" element={<ViewUsers />} />
+
+        <Route path="/publications" element={<Publications />} />
+        <Route path="/publications/addPublication" element={<AddPublications />} />
+        <Route path="/publications/edit/:publicationId" element={<EditPublications />} />
+        <Route path="/publications/view/:publicationId" element={<ViewPublications />} />
+
+        <Route path="/media" element={<Media />} />
+        <Route path="/media/add" element={<AddMedia />} />
+        <Route path="/media/edit/:mediaId" element={<EditMedia />} />
+        <Route path="/media/view/:mediaId" element={<ViewMedia />} />
+
+      {/* Close the Root Route */}
       </Route>
     )
 );

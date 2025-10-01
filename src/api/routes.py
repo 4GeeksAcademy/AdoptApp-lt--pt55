@@ -2,9 +2,11 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User
+from api.models import Publication, db, User, Media
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from werkzeug.security import generate_password_hash
+
 
 api = Blueprint('api', __name__)
 
@@ -20,3 +22,281 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+# ----------------- USERS CRUD ----------------------------
+
+@api.route('/users', methods=['POST'])
+def create_user():
+    try:
+        data = request.get_json()
+
+        required_fields = ['email', 'password']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Required field: {field}'}), 400
+
+        existing = User.query.filter_by(email=data['email']).first()
+        if existing:
+            return jsonify({'error': 'Email already exists'}), 409
+
+        user = User(
+            email=data['email'],
+            password=generate_password_hash(data['password']),  # store hashed password
+            role=data.get('role', 'user'),
+            is_active=data.get('is_active', True)
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+        return jsonify(user.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/users', methods=['GET'])
+def get_users():
+    try:
+        users = User.query.all()
+        return jsonify([user.serialize() for user in users]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    try:
+        user = User.query.get_or_404(user_id)
+        return jsonify(user.serialize()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
+
+
+@api.route('/users/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    try:
+        user = User.query.get_or_404(user_id)
+        data = request.get_json()
+
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+        if 'city' in data:
+            user.city = data['city']
+        if 'phone' in data:
+            user.phone = data['phone']
+        if 'profile_image' in data:
+            user.profile_image = data['profile_image']
+
+        if 'email' in data:
+            if data['email'] != user.email:
+                existing = User.query.filter_by(email=data['email']).first()
+                if existing:
+                    return jsonify({'error': 'Email already exists'}), 409
+            user.email = data['email']
+
+        if 'password' in data:
+            user.password = generate_password_hash(data['password'])
+
+        if 'role' in data:
+            user.role = data['role']
+
+        if 'is_active' in data:
+            user.is_active = data['is_active']
+
+        db.session.commit()
+        return jsonify(user.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@api.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        user = User.query.get_or_404(user_id)
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User successfully deleted'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+# ----------------- PUBLICATIONS CRUD ----------------------------
+
+@api.route('/publications', methods=['POST'])
+def create_publication():
+    try:
+        data = request.get_json()
+
+        required_fields = ['user_id', 'title', 'description', 'race', 'sex', 'species', 'age', 'location']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Required field: {field}'}), 400
+
+        publication = Publication(
+            user_id=data['user_id'],
+            title=data['title'],
+            description=data['description'],
+            race=data['race'],
+            sex=data['sex'],
+            species=data['species'],
+            age=data['age'],
+            location=data['location'], 
+        )
+
+        db.session.add(publication)
+        db.session.commit()
+
+        return jsonify(publication.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/publications', methods=['GET'])
+def get_publications():
+    try:
+        publications = Publication.query.all()
+        return jsonify([pub.serialize() for pub in publications]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/publications/<int:publication_id>', methods=['GET'])
+def get_publication(publication_id):
+    try:
+        publication = Publication.query.get_or_404(publication_id)
+        return jsonify(publication.serialize()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
+
+
+@api.route('/publications/<int:publication_id>', methods=['PUT'])
+def update_publication(publication_id):
+    try:
+        publication = Publication.query.get_or_404(publication_id)
+        data = request.get_json()
+
+        if 'title' in data:
+            publication.title = data['title']
+        if 'description' in data:
+            publication.description = data['description']
+        if 'race' in data:
+            publication.race = data['race']
+        if 'sex' in data:
+            publication.sex = data['sex']
+        if 'species' in data:
+            publication.species = data['species']
+        if 'age' in data:
+            publication.age = data['age']
+        if 'location' in data:
+            publication.location = data['location']
+        if 'adopted' in data:
+            publication.adopted = data['adopted']
+        if 'adopter_id' in data:
+            publication.adopter_id = data['adopter_id']
+
+        db.session.commit()
+        return jsonify(publication.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/publications/<int:publication_id>', methods=['DELETE'])
+def delete_publication(publication_id):
+    try:
+        publication = Publication.query.get_or_404(publication_id)
+        db.session.delete(publication)
+        db.session.commit()
+        return jsonify({'message': 'Publication successfully deleted'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+        # ----------------- MEDIA CRUD ----------------------------
+
+@api.route('/media', methods=['POST'])
+def create_media():
+    try:
+        data = request.get_json()
+
+        required_fields = ['url', 'file_type', 'publication_id']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Required field: {field}'}), 400
+
+        media = Media(
+            url=data['url'],
+            file_type=data['file_type'],
+            publication_id=data['publication_id']
+        )
+
+        db.session.add(media)
+        db.session.commit()
+
+        return jsonify(media.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@api.route('/media', methods=['GET'])
+def get_all_media():
+    try:
+        media_items = Media.query.all()
+        return jsonify([media.serialize() for media in media_items]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/media/<int:media_id>', methods=['GET'])
+def get_media(media_id):
+    try:
+        media = Media.query.get_or_404(media_id)
+        return jsonify(media.serialize()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
+
+
+@api.route('/media/<int:media_id>', methods=['PUT'])
+def update_media(media_id):
+    try:
+        media = Media.query.get_or_404(media_id)
+        data = request.get_json()
+
+        if 'url' in data:
+            media.url = data['url']
+        if 'file_type' in data:
+            media.file_type = data['file_type']
+        if 'publication_id' in data:
+            media.publication_id = data['publication_id']
+
+        db.session.commit()
+        return jsonify(media.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/media/<int:media_id>', methods=['DELETE'])
+def delete_media(media_id):
+    try:
+        media = Media.query.get_or_404(media_id)
+        db.session.delete(media)
+        db.session.commit()
+        return jsonify({'message': 'Media successfully deleted'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+# ----------------------------------------------------------
