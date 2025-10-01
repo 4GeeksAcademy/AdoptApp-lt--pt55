@@ -53,7 +53,6 @@ class Publication(db.Model):
     location: Mapped[str] = mapped_column(String(100), nullable=False)
     adopted: Mapped[bool] = mapped_column(Boolean,default=False)
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     adopter_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
 
     user: Mapped[User] = relationship("User", back_populates="publications", foreign_keys=[user_id])

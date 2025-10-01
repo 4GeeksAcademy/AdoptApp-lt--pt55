@@ -249,6 +249,14 @@ def create_media():
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@api.route('/media', methods=['GET'])
+def get_all_media():
+    try:
+        media_items = Media.query.all()
+        return jsonify([media.serialize() for media in media_items]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @api.route('/media/<int:media_id>', methods=['GET'])
 def get_media(media_id):

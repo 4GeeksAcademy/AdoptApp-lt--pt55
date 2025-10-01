@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React, { useEffect } from "react";
-import {useGlobalReducer} from "../hooks/useGlobalReducer";
+import {useGlobalReducer} from "../../hooks/useGlobalReducer";
 
 export const Users = () => {
   const { store, dispatch } = useGlobalReducer();
@@ -83,17 +83,17 @@ return (
                                 </td>
                                 <td>
                                     <Link to={`/users/view/${user.id}`} className="btn btn-sm btn-info me-1" title="View">
-                                        <i className="bi bi-eye"></i>
+                                        <i class="fa-regular fa-eye"></i>
                                     </Link>
-                                    <Link to={`/users/${user.id}`} className="btn btn-sm btn-warning me-1" title="Edit">
-                                        <i className="bi bi-pencil"></i>
+                                    <Link to={`/users/edit/${user.id}`} className="btn btn-sm btn-warning me-1" title="Edit">
+                                        <i class="fa-regular fa-pen-to-square"></i>
                                     </Link>
                                     <button
                                         className="btn btn-sm btn-danger"
                                         title="Delete"
                                         onClick={() => handleDeleteUser(user.id)}
                                     >
-                                        <i className="bi bi-trash"></i>
+                                        <i class="fa-regular fa-trash-can"></i>
                                     </button>
                                 </td>
                             </tr>
