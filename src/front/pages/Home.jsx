@@ -57,6 +57,9 @@ export const Home = () => {
               <Link to="/media" className="btn btn-lg btn-info text-white">
                 📸 Media
               </Link>
+              <Link to="/reviews" className="btn btn-lg btn-warning text-white">
+               ⭐ Reviews
+              </Link>
             </div>
 
             <div className="alert alert-light">

@@ -94,3 +94,24 @@ class Media(db.Model):
             "file_type": self.file_type.value,
             "url": self.url
         }
+
+ 
+class Review(db.Model):
+    __tablename__ = "review"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    publication_id: Mapped[int] = mapped_column(ForeignKey("publication.id"), nullable=False)
+    comment: Mapped[str] = mapped_column(String(260), nullable=True)
+    amount: Mapped[int] = mapped_column(Integer, nullable=True)
+
+    user: Mapped[User] = relationship("User")
+    publication: Mapped[Publication] = relationship("Publication")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user": self.user.serialize() if self.user else None,
+            "publication_id": self.publication_id,
+            "comment": self.comment,
+            "amount": self.amount
+        }
