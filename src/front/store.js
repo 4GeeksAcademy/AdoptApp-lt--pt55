@@ -3,7 +3,9 @@ export const initialStore=()=>{
     message: null,
     users: [],
     publications: [],
-    media: []
+    media: [],
+    reviews: [],
+    currentUser: null
   };
 }
 export default function storeReducer(store, action = {}) {
@@ -75,6 +77,26 @@ export default function storeReducer(store, action = {}) {
         media: store.media.filter((m) => m.id !== action.payload)
       };
 
+
+    case "SET_REVIEWS":
+      return { ...store, reviews: action.payload };
+
+    case "ADD_REVIEW":
+      return { ...store, reviews: [...store.reviews, action.payload] };
+
+    case "UPDATE_REVIEW":
+      return {
+        ...store,
+        reviews: store.reviews.map((r) =>
+          r.id === action.payload.id ? action.payload : r
+        )
+      };
+
+    case "DELETE_REVIEW":
+      return {
+        ...store,
+        reviews: store.reviews.filter((r) => r.id !== action.payload)
+      };
     default:
       throw Error("Unknown action: " + action.type);
   }

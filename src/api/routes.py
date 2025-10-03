@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import Publication, db, User, Media
+from api.models import Publication, db, User, Media, Review
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash
@@ -299,4 +299,82 @@ def delete_media(media_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-# ----------------------------------------------------------
+# --------------------------REVIEWS CRUD----------------------------
+
+@api.route('/reviews', methods=['POST'])
+def create_review():
+    try:
+        data = request.get_json()
+
+        required_fields = ['user_id', 'publication_id', 'comment', 'amount']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Required field: {field}'}), 400
+
+        review = Review(
+            user_id=data['user_id'],
+            publication_id=data['publication_id'],
+            comment=data['comment'],
+            amount=data['amount']
+        )
+
+        db.session.add(review)
+        db.session.commit()
+
+        return jsonify(review.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@api.route('/reviews', methods=['GET'])
+def get_all_reviews():
+    try:
+        reviews = Review.query.all()
+        return jsonify([review.serialize() for review in reviews]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/reviews/<int:review_id>', methods=['GET'])
+def get_review(review_id):
+    try:
+        review = Review.query.get_or_404(review_id)
+        return jsonify(review.serialize()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
+
+
+@api.route('/reviews/<int:review_id>', methods=['PUT'])
+def update_review(review_id):
+    try:
+        review = Review.query.get_or_404(review_id)
+        data = request.get_json()
+
+        if 'user_id' in data:
+            review.user_id = data['user_id']
+        if 'publication_id' in data:
+            review.publication_id = data['publication_id']
+        if 'comment' in data:
+            review.comment = data['comment']
+        if 'amount' in data:
+            review.amount = data['amount']
+
+        db.session.commit()
+        return jsonify(review.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+@api.route('/reviews/<int:review_id>', methods=['DELETE'])
+def delete_review(review_id):
+    try:
+        review = Review.query.get_or_404(review_id)
+        db.session.delete(review)
+        db.session.commit()
+        return jsonify({'message': 'Review successfully deleted'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+# ----------------- END REVIEWS CRUD ----------------------------

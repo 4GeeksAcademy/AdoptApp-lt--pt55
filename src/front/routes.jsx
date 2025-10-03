@@ -25,6 +25,11 @@ import { AddMedia } from "./pages/Media/AddMedia";
 import { EditMedia } from "./pages/Media/EditMedia";
 import { ViewMedia } from "./pages/Media/ViewMedia";
 
+import { Review } from "./pages/Review/Review";
+import { AddReview } from "./pages/Review/AddReview";
+import { EditReview } from "./pages/Review/EditReview";
+import { ViewReview } from "./pages/Review/ViewReview";
+
 // Create the router using createBrowserRouter and createRoutesFromElements
 
 export const router = createBrowserRouter(
@@ -57,6 +62,11 @@ export const router = createBrowserRouter(
         <Route path="/media/add" element={<AddMedia />} />
         <Route path="/media/edit/:mediaId" element={<EditMedia />} />
         <Route path="/media/view/:mediaId" element={<ViewMedia />} />
+
+        <Route path="/reviews" element={<Review />} />
+        <Route path="/reviews/add" element={<AddReview />} />
+        <Route path="/reviews/edit/:reviewId" element={<EditReview />} />
+        <Route path="/reviews/view/:reviewId" element={<ViewReview />} />
 
       {/* Close the Root Route */}
       </Route>
