@@ -162,23 +162,44 @@ class Favorite(db.Model):
                 "race": self.publication.race
             } if self.publication else None
         }
-    
-    class Follower(db.Model):
 
-        __tablename__ = "followers"
-        id: Mapped[int] = mapped_column(primary_key=True)
-        follower_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-        followed_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-        __table_args__ = (
-            db.UniqueConstraint("follower_id", "followed_id", name="unique_follower_pair"),
-        )
+class Follower(db.Model):
+
+    __tablename__ = "followers"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    follower_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    followed_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    __table_args__ = (
+        db.UniqueConstraint("follower_id", "followed_id", name="unique_follower_pair"),
+    )
+
+    follower: Mapped["User"] = relationship("User", foreign_keys=[follower_id])
+    followed: Mapped["User"] = relationship("User", foreign_keys=[followed_id])
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "follower": self.follower.serialize() if self.follower else None,
+            "followed": self.followed.serialize() if self.followed else None
+        }
+
+class CandidatePublication(db.Model):
+
+    __tablename__ = "candidate_publication"
+   
+    id: Mapped[int] = mapped_column(primary_key=True)
+    publication_id: Mapped[int] = mapped_column(ForeignKey("publication.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    __table_args__ = (
+        db.UniqueConstraint("publication_id", "user_id", name="unique_candidate_publication_pair"),
+    )
+
+    publication: Mapped["Publication"] = relationship("Publication", foreign_keys=[publication_id])
+    user: Mapped["User"] = relationship("User", foreign_keys=[user_id])
     
-        follower: Mapped["User"] = relationship("User", foreign_keys=[follower_id])
-        followed: Mapped["User"] = relationship("User", foreign_keys=[followed_id])
-    
-        def serialize(self):
-            return {
-                "id": self.id,
-                "follower": self.follower.serialize() if self.follower else None,
-                "followed": self.followed.serialize() if self.followed else None
-            }
+    def serialize(self):
+        return {
+            "id": self.id,
+            "publication": self.publication.serialize() if self.publication else None,
+            "user": self.user.serialize() if self.user else None
+        }

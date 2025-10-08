@@ -66,6 +66,10 @@ export const Home = () => {
               <Link to="/followers" className="btn btn-lg btn-primary text-white">
                   <i className="bi bi-people-fill"></i> Followers
               </Link>
+              <Link to="/candidate_publications" className="btn btn-lg btn-warning text-white">
+                <i className="bi bi-chat-left-text-fill"></i> Candidate Publications
+              </Link>
+
             </div>
 
             <div className="alert alert-light">
