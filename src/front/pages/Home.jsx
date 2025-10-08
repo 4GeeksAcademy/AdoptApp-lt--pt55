@@ -60,6 +60,9 @@ export const Home = () => {
               <Link to="/reviews" className="btn btn-lg btn-warning text-white">
                ⭐ Reviews
               </Link>
+              <Link to="/favorites" className="btn btn-primary btn-lg">
+                 <i className="bi bi-heart-fill"></i> Go to Favorites
+              </Link>
             </div>
 
             <div className="alert alert-light">
