@@ -40,6 +40,11 @@ import { AddFollower } from "./pages/Follower/AddFollower";
 import { EditFollower } from "./pages/Follower/EditFollower";
 import { ViewFollower } from "./pages/Follower/ViewFollower";
 
+import { CandidatePublication } from "./pages/CandidatePublication/CandidatePublication";
+import { AddCandidatePublication } from "./pages/CandidatePublication/AddCandidatePublication";
+import { EditCandidatePublication } from "./pages/CandidatePublication/EditCandidatePublication";
+import { ViewCandidatePublication } from "./pages/CandidatePublication/ViewCandidatePublication";
+
 // Create the router using createBrowserRouter and createRoutesFromElements
 
 export const router = createBrowserRouter(
@@ -87,6 +92,11 @@ export const router = createBrowserRouter(
         <Route path="/followers/add" element={<AddFollower />} />
         <Route path="/followers/edit/:followerId" element={<EditFollower />} />
         <Route path="/followers/view/:followerId" element={<ViewFollower />} />
+
+        <Route path="/candidate_publications" element={<CandidatePublication />} />
+        <Route path="/candidate_publications/add" element={<AddCandidatePublication />} />
+        <Route path="/candidate_publications/edit/:candidatePublicationId" element={<EditCandidatePublication />} />
+        <Route path="/candidate_publications/view/:candidatePublicationId" element={<ViewCandidatePublication />} />
 
       {/* Close the Root Route */}
       </Route>

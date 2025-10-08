@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import Publication, db, User, Media, Review, Favorite, Follower
+from api.models import Publication, db, User, Media, Review, Favorite, Follower, CandidatePublication
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash
@@ -545,4 +545,100 @@ def delete_follower(follower_id):
     except Exception as e:
         db.session.rollback()
         print("Error deleting follower:", e)
+        return jsonify({'error': 'Internal server error'}), 500
+
+# --------------------------CANDIDATE PUBLICATION CRUD----------------------------
+@api.route('/candidate_publications', methods=['GET'])
+def get_all_candidate_publications():
+    try:
+        candidate_publications = CandidatePublication.query.all()
+        return jsonify([cp.serialize() for cp in candidate_publications]), 200
+    except Exception as e:
+        print("Error fetching candidate publications:", e)
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/candidate_publications/<int:candidate_publication_id>', methods=['GET'])
+def get_candidate_publication(candidate_publication_id):
+    try:
+        candidate_publication = CandidatePublication.query.get_or_404(candidate_publication_id)
+        return jsonify(candidate_publication.serialize()), 200
+    except Exception as e:
+        print("Error fetching candidate publication:", e)
+        return jsonify({'error': str(e)}), 404
+
+
+@api.route('/candidate_publications', methods=['POST'])
+def create_candidate_publication():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+
+        required_fields = ['publication_id', 'user_id']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Required field: {field}'}), 400
+
+        if not isinstance(data['publication_id'], int) or not isinstance(data['user_id'], int):
+            return jsonify({'error': 'IDs must be integers'}), 400
+
+        if data['publication_id'] == data['user_id']:
+            return jsonify({'error': 'Publication ID and User ID cannot be the same'}), 400
+        existing = CandidatePublication.query.filter_by(
+            publication_id=data['publication_id'],
+            user_id=data['user_id']
+        ).first()
+        if existing:
+            return jsonify({'error': 'Already following'}), 400
+
+        candidate_publication = CandidatePublication(
+            publication_id=data['publication_id'],
+            user_id=data['user_id']
+        )
+        db.session.add(candidate_publication)
+        db.session.commit()
+
+        return jsonify(candidate_publication.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        print("Error creating candidate publication:", e)
+        return jsonify({'error': 'Internal server error'}), 500
+
+@api.route('/candidate_publications/<int:candidate_publication_id>', methods=['PUT'])
+def update_candidate_publication(candidate_publication_id):
+    try:
+        candidate_publication = CandidatePublication.query.get_or_404(candidate_publication_id)
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+
+        if 'publication_id' in data:
+            candidate_publication.publication_id = data['publication_id']
+        if 'user_id' in data:
+            candidate_publication.user_id = data['user_id']
+
+        db.session.commit()
+        return jsonify(candidate_publication.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print("Error updating candidate publication:", e)
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+@api.route('/candidate_publications/<int:candidate_publication_id>', methods=['DELETE'])
+def delete_candidate_publication(candidate_publication_id):
+    try:
+        candidate_publication = CandidatePublication.query.get(candidate_publication_id)
+        if not candidate_publication:
+            return jsonify({'error': 'Candidate publication not found'}), 404
+        db.session.delete(candidate_publication)
+        db.session.commit()
+        return jsonify({'message': 'Candidate publication successfully deleted'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print("Error deleting candidate publication:", e)
         return jsonify({'error': 'Internal server error'}), 500

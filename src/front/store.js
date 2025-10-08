@@ -6,6 +6,8 @@ export const initialStore=()=>{
     media: [],
     reviews: [],
     favorites: [],
+    followers: [],
+    candidate_publications: []
   };
 }
 export default function storeReducer(store, action = {}) {
@@ -130,10 +132,22 @@ export default function storeReducer(store, action = {}) {
         )
       };
 
-    case "DELETE_FOLLOWER":
+          case "SET_CANDIDATE_PUBLICATIONS":
+      return { ...store, candidate_publications: action.payload };
+    case "ADD_CANDIDATE_PUBLICATION":
+      return { ...store, candidate_publications: [...store.candidate_publications, action.payload] };
+    case "UPDATE_CANDIDATE_PUBLICATION":
       return {
         ...store,
-        followers: store.followers .filter((f) => f.id !== action.payload)
+        candidate_publications: store.candidate_publications.map((cp) =>
+          cp.id === action.payload.id ? action.payload : cp
+        )
+      };
+
+    case "DELETE_CANDIDATE_PUBLICATION":
+      return {
+        ...store,
+        candidate_publications: store.candidate_publications.filter((cp) => cp.id !== action.payload)
       };
     default:
       throw Error("Unknown action: " + action.type);
