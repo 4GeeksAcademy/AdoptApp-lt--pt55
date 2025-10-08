@@ -35,6 +35,11 @@ import { AddFavorite } from "./pages/Favorites/AddFavorite";
 import { EditFavorite } from "./pages/Favorites/EditFavorite";
 import { ViewFavorite } from "./pages/Favorites/ViewFavorite";
 
+import { Follower } from "./pages/Follower/Follower";
+import { AddFollower } from "./pages/Follower/AddFollower";
+import { EditFollower } from "./pages/Follower/EditFollower";
+import { ViewFollower } from "./pages/Follower/ViewFollower";
+
 // Create the router using createBrowserRouter and createRoutesFromElements
 
 export const router = createBrowserRouter(
@@ -77,6 +82,11 @@ export const router = createBrowserRouter(
         <Route path="/favorites/add" element={<AddFavorite />} />
         <Route path="/favorites/edit/:favoriteId" element={<EditFavorite />} />
         <Route path="/favorites/view/:favoriteId" element={<ViewFavorite />} />
+
+        <Route path="/followers" element={<Follower />} />
+        <Route path="/followers/add" element={<AddFollower />} />
+        <Route path="/followers/edit/:followerId" element={<EditFollower />} />
+        <Route path="/followers/view/:followerId" element={<ViewFollower />} />
 
       {/* Close the Root Route */}
       </Route>

@@ -162,3 +162,23 @@ class Favorite(db.Model):
                 "race": self.publication.race
             } if self.publication else None
         }
+    
+    class Follower(db.Model):
+
+        __tablename__ = "followers"
+        id: Mapped[int] = mapped_column(primary_key=True)
+        follower_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+        followed_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+        __table_args__ = (
+            db.UniqueConstraint("follower_id", "followed_id", name="unique_follower_pair"),
+        )
+    
+        follower: Mapped["User"] = relationship("User", foreign_keys=[follower_id])
+        followed: Mapped["User"] = relationship("User", foreign_keys=[followed_id])
+    
+        def serialize(self):
+            return {
+                "id": self.id,
+                "follower": self.follower.serialize() if self.follower else None,
+                "followed": self.followed.serialize() if self.followed else None
+            }
