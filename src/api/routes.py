@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import Publication, db, User, Media, Review, Favorite
+from api.models import Publication, db, User, Media, Review, Favorite, Follower
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash
@@ -447,4 +447,102 @@ def delete_favorite(favorite_id):
         db.session.rollback()
 
         return jsonify({'error': str(e)}), 500
-# ----------------- END FAVORITE CRUD ------------------
+# --------------------------FOLLOWER CRUD----------------------------
+@api.route('/followers', methods=['GET'])
+def get_all_followers():
+    try:
+        followers = Follower.query.all()
+        return jsonify([f.serialize() for f in followers]), 200
+    except Exception as e:
+        print("Error fetching followers:", e)
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/followers/<int:follower_id>', methods=['GET'])
+def get_follower(follower_id):
+    try:
+        follower = Follower.query.get_or_404(follower_id)
+        return jsonify(follower.serialize()), 200
+    except Exception as e:
+        print("Error fetching follower:", e)
+        return jsonify({'error': str(e)}), 404
+
+
+@api.route('/followers', methods=['POST'])
+def create_follower():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+
+        required_fields = ['follower_id', 'followed_id']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Required field: {field}'}), 400
+
+        if not isinstance(data['follower_id'], int) or not isinstance(data['followed_id'], int):
+            return jsonify({'error': 'IDs must be integers'}), 400
+
+        if data['follower_id'] == data['followed_id']:
+            return jsonify({'error': 'Cannot follow yourself'}), 400
+
+        existing = Follower.query.filter_by(
+            follower_id=data['follower_id'],
+            followed_id=data['followed_id']
+        ).first()
+        if existing:
+            return jsonify({'error': 'Already following'}), 400
+
+        follower = Follower(
+            follower_id=data['follower_id'],
+            followed_id=data['followed_id']
+
+        )
+        db.session.add(follower)
+        db.session.commit()
+
+        return jsonify(follower.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        print("Error creating follower:", e)
+        return jsonify({'error': 'Internal server error'}), 500
+
+# Actualizar un follower
+@api.route('/followers/<int:follower_id>', methods=['PUT'])
+def update_follower(follower_id):
+    try:
+        follower = Follower.query.get_or_404(follower_id)
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+
+        if 'follower_id' in data:
+            follower.follower_id = data['follower_id']
+        if 'followed_id' in data:
+            follower.followed_id = data['followed_id']
+
+        db.session.commit()
+        return jsonify(follower.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print("Error updating follower:", e)
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+@api.route('/followers/<int:follower_id>', methods=['DELETE'])
+def delete_follower(follower_id):
+    try:
+        follower = Follower.query.get(follower_id)
+        if not follower:
+            return jsonify({'error': 'Follower not found'}), 404
+
+        db.session.delete(follower)
+        db.session.commit()
+        return jsonify({'message': 'Follower successfully deleted'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print("Error deleting follower:", e)
+        return jsonify({'error': 'Internal server error'}), 500

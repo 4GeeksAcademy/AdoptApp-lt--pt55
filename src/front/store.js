@@ -117,6 +117,24 @@ export default function storeReducer(store, action = {}) {
         ...store,
         favorites: store.favorites.filter((f) => f.id !== action.payload)
       };
+    case "SET_FOLLOWERS":
+      return { ...store, followers: action.payload };
+
+    case "ADD_FOLLOWER":
+      return { ...store, followers: [...store.followers, action.payload] };
+    case "UPDATE_FOLLOWER":
+      return {
+        ...store,
+        followers: store.followers.map((f) =>
+          f.id === action.payload.id ? action.payload : f
+        )
+      };
+
+    case "DELETE_FOLLOWER":
+      return {
+        ...store,
+        followers: store.followers .filter((f) => f.id !== action.payload)
+      };
     default:
       throw Error("Unknown action: " + action.type);
   }

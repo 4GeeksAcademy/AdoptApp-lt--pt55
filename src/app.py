@@ -20,7 +20,7 @@ static_file_dir = os.path.join(os.path.dirname(
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "https://bug-free-sniffle-jwxq56476793qjwj-3000.app.github.dev"}}, supports_credentials=True)
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")

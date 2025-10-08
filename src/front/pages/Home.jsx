@@ -63,6 +63,9 @@ export const Home = () => {
               <Link to="/favorites" className="btn btn-primary btn-lg">
                  <i className="bi bi-heart-fill"></i> Go to Favorites
               </Link>
+              <Link to="/followers" className="btn btn-lg btn-primary text-white">
+                  <i className="bi bi-people-fill"></i> Followers
+              </Link>
             </div>
 
             <div className="alert alert-light">
