@@ -30,6 +30,11 @@ import { AddReview } from "./pages/Review/AddReview";
 import { EditReview } from "./pages/Review/EditReview";
 import { ViewReview } from "./pages/Review/ViewReview";
 
+import { Favorites } from "./pages/Favorites/Favorite";
+import { AddFavorite } from "./pages/Favorites/AddFavorite";
+import { EditFavorite } from "./pages/Favorites/EditFavorite";
+import { ViewFavorite } from "./pages/Favorites/ViewFavorite";
+
 // Create the router using createBrowserRouter and createRoutesFromElements
 
 export const router = createBrowserRouter(
@@ -67,6 +72,11 @@ export const router = createBrowserRouter(
         <Route path="/reviews/add" element={<AddReview />} />
         <Route path="/reviews/edit/:reviewId" element={<EditReview />} />
         <Route path="/reviews/view/:reviewId" element={<ViewReview />} />
+
+        <Route path="/favorites" element={<Favorites />} />
+        <Route path="/favorites/add" element={<AddFavorite />} />
+        <Route path="/favorites/edit/:favoriteId" element={<EditFavorite />} />
+        <Route path="/favorites/view/:favoriteId" element={<ViewFavorite />} />
 
       {/* Close the Root Route */}
       </Route>

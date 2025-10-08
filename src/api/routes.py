@@ -1,17 +1,13 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import Publication, db, User, Media, Review
+from api.models import Publication, db, User, Media, Review, Favorite
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash
 
-
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
-CORS(api)
+CORS(api, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -377,4 +373,78 @@ def delete_review(review_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-# ----------------- END REVIEWS CRUD ----------------------------
+
+# --------------------------FAVORITE CRUD----------------------------
+
+@api.route('/favorites', methods=['POST'])
+def create_favorite():
+    try:
+        data = request.get_json()
+
+        required_fields = ['user_id', 'publication_id']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Required field: {field}'}), 400
+
+        favorite = Favorite(
+            user_id=data['user_id'],
+            publication_id=data['publication_id']
+        )
+
+        db.session.add(favorite)
+        db.session.commit()
+
+        return jsonify(favorite.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@api.route('/favorites', methods=['GET'])
+def get_all_favorites():
+    try:
+        favorites = Favorite.query.all()
+        return jsonify([favorite.serialize() for favorite in favorites]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@api.route('/favorites/<int:favorite_id>', methods=['GET'])
+def get_favorite(favorite_id):
+    try:
+        favorite = Favorite.query.get_or_404(favorite_id)
+        return jsonify(favorite.serialize()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
+
+
+@api.route('/favorites/<int:favorite_id>', methods=['PUT'])
+def update_favorite(favorite_id):
+    try:
+        favorite = Favorite.query.get_or_404(favorite_id)
+        data = request.get_json()
+
+        if 'user_id' in data:
+            favorite.user_id = data['user_id']
+        if 'publication_id' in data:
+            favorite.publication_id = data['publication_id']
+
+        db.session.commit()
+        return jsonify(favorite.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+@api.route('/favorites/<int:favorite_id>', methods=['DELETE'])
+def delete_favorite(favorite_id):
+    try:
+        favorite = Favorite.query.get_or_404(favorite_id)
+        db.session.delete(favorite)
+        db.session.commit()
+        return jsonify({'message': 'Favorite successfully deleted'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+
+        return jsonify({'error': str(e)}), 500
+# ----------------- END FAVORITE CRUD ------------------

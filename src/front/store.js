@@ -5,7 +5,7 @@ export const initialStore=()=>{
     publications: [],
     media: [],
     reviews: [],
-    currentUser: null
+    favorites: [],
   };
 }
 export default function storeReducer(store, action = {}) {
@@ -96,6 +96,26 @@ export default function storeReducer(store, action = {}) {
       return {
         ...store,
         reviews: store.reviews.filter((r) => r.id !== action.payload)
+      };
+
+    case "SET_FAVORITES":
+      return { ...store, favorites: action.payload };
+
+    case "ADD_FAVORITE":
+      return { ...store, favorites: [...store.favorites, action.payload] };
+
+    case "UPDATE_FAVORITE":
+      return {
+        ...store,
+        favorites: store.favorites.map((f) =>
+          f.id === action.payload.id ? action.payload : f
+        )
+      };
+
+    case "DELETE_FAVORITE":
+      return {
+        ...store,
+        favorites: store.favorites.filter((f) => f.id !== action.payload)
       };
     default:
       throw Error("Unknown action: " + action.type);
