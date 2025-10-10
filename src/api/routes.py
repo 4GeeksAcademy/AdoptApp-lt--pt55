@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import Publication, db, User, Media, Review, Favorite, Follower, CandidatePublication
+from api.models import Publication, db, User, Media, Review, Favorite, Follower, CandidatePublication, Admin
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+from api.models import Admin, db
+from flask_jwt_extended import create_access_token
 
 api = Blueprint('api', __name__)
 
@@ -642,3 +644,116 @@ def delete_candidate_publication(candidate_publication_id):
         db.session.rollback()
         print("Error deleting candidate publication:", e)
         return jsonify({'error': 'Internal server error'}), 500
+
+# -----------------ADMINS--------------------------------------------
+@api.route('/admins', methods=['GET'])
+def get_admins():
+    try:
+        admins = Admin.query.all()
+        return jsonify([admin.serialize() for admin in admins]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@api.route('/admins/<int:admin_id>', methods=['GET'])
+def get_admin(admin_id):
+    try:
+        admin = Admin.query.get_or_404(admin_id)
+        return jsonify(admin.serialize()), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 404
+
+@api.route('/admins', methods=['POST'])
+def create_admin():
+    try:
+        data = request.get_json() or {}
+        required_fields = ['firstname', 'lastname', 'email', 'password']
+
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'error': f'Required field: {field}'}), 400
+
+        if Admin.query.filter_by(email=data['email'].lower().strip()).first():
+            return jsonify({'error': 'Email already exists'}), 409
+
+        admin = Admin(
+            firstname=data['firstname'].strip(),
+            lastname=data['lastname'].strip(),
+            email=data['email'].lower().strip(),
+            password=generate_password_hash(data['password'])
+        )
+
+        db.session.add(admin)
+        db.session.commit()
+        return jsonify(admin.serialize()), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@api.route('/admins/<int:admin_id>', methods=['PUT'])
+def update_admin(admin_id):
+    try:
+        admin = Admin.query.get_or_404(admin_id)
+        data = request.get_json() or {}
+
+        if 'email' in data:
+            email = data['email'].lower().strip()
+            if email != admin.email and Admin.query.filter_by(email=email).first():
+                return jsonify({'error': 'Email already exists'}), 409
+            admin.email = email
+
+        if 'firstname' in data:
+            admin.firstname = data['firstname'].strip()
+        if 'lastname' in data:
+            admin.lastname = data['lastname'].strip()
+        if 'is_active' in data:
+            admin.is_active = bool(data['is_active'])
+        if 'password' in data:
+            admin.password = generate_password_hash(data['password'])
+
+        db.session.commit()
+        return jsonify(admin.serialize()), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@api.route('/admins/<int:admin_id>', methods=['DELETE'])
+def delete_admin(admin_id):
+    try:
+        admin = Admin.query.get_or_404(admin_id)
+        db.session.delete(admin)
+        db.session.commit()
+        return jsonify({'message': 'Admin successfully deleted'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@api.route('/admins/login', methods=['POST'])
+def admin_login():
+    try:
+        data = request.get_json() or {}
+        email = (data.get('email') or '').strip().lower()
+        password = data.get('password')
+
+        if not email or not password:
+            return jsonify({'error': 'Email and password required'}), 400
+
+        admin = Admin.query.filter_by(email=email).first()
+        if not admin or not check_password_hash(admin.password, password):
+            return jsonify({'error': 'Invalid credentials'}), 401
+
+        if not admin.is_active:
+            return jsonify({'error': 'Account deactivated'}), 403
+
+        token = create_access_token(identity=str(admin.id), additional_claims={"role": "admin"})
+
+        return jsonify({
+            'message': 'Login successful',
+            'token': token,
+            'role': 'admin',
+            'admin': admin.serialize()
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

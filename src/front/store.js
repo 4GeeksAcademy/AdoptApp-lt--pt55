@@ -1,3 +1,5 @@
+import { Admins } from "./pages/LoginAdmin/Admin";
+
 export const initialStore=()=>{
   return{
     message: null,
@@ -7,7 +9,8 @@ export const initialStore=()=>{
     reviews: [],
     favorites: [],
     followers: [],
-    candidate_publications: []
+    candidate_publications: [],
+    Admin: []
   };
 }
 export default function storeReducer(store, action = {}) {
@@ -17,7 +20,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         message: action.payload
       };
-
+      /* USERS */
     case "SET_USERS":
       return { ...store, users: action.payload };
 
@@ -37,7 +40,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         users: store.users.filter((u) => u.id !== action.payload)
       };
-
+      /* PUBLICATIONS */
     
     case "SET_PUBLICATIONS":
       return { ...store, publications: action.payload };
@@ -58,7 +61,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         publications: store.publications.filter((p) => p.id !== action.payload)
       };
-
+      /* MEDIA */
     case "SET_MEDIA":
       return { ...store, media: action.payload };
 
@@ -99,7 +102,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         reviews: store.reviews.filter((r) => r.id !== action.payload)
       };
-
+     /* FAVORITES */
     case "SET_FAVORITES":
       return { ...store, favorites: action.payload };
 
@@ -119,6 +122,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         favorites: store.favorites.filter((f) => f.id !== action.payload)
       };
+      /* FOLLOWERS */
     case "SET_FOLLOWERS":
       return { ...store, followers: action.payload };
 
@@ -131,7 +135,7 @@ export default function storeReducer(store, action = {}) {
           f.id === action.payload.id ? action.payload : f
         )
       };
-
+       /* CANDIDATE PUBLICATIONS */
           case "SET_CANDIDATE_PUBLICATIONS":
       return { ...store, candidate_publications: action.payload };
     case "ADD_CANDIDATE_PUBLICATION":
@@ -148,6 +152,23 @@ export default function storeReducer(store, action = {}) {
       return {
         ...store,
         candidate_publications: store.candidate_publications.filter((cp) => cp.id !== action.payload)
+      };
+       /* ADMIN */
+    case "SET_ADMIN":
+      return { ...store, admins: action.payload };
+    case "ADD_ADMIN":
+      return { ...store, admins: [...store.admins, action.payload] };
+    case "DELETE_ADMIN":
+      return {
+        ...store,
+        admins: store.admins.filter((ad) => ad.id !== action.payload),
+      };
+    case "UPDATE_ADMIN":
+      return {
+        ...store,
+        admins: store.admins.map((ad) =>
+          ad.id === action.payload.id ? action.payload : ad
+        ),
       };
     default:
       throw Error("Unknown action: " + action.type);
