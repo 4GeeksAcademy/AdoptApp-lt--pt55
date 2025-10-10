@@ -45,6 +45,13 @@ import { AddCandidatePublication } from "./pages/CandidatePublication/AddCandida
 import { EditCandidatePublication } from "./pages/CandidatePublication/EditCandidatePublication";
 import { ViewCandidatePublication } from "./pages/CandidatePublication/ViewCandidatePublication";
 
+import { Admins } from "./pages/LoginAdmin/Admin";
+import { DashboardAdmin } from "./pages/LoginAdmin/DashboardAdmin";
+import { SignUpAdmin } from "./pages/LoginAdmin/SignUpAdmin";
+import { LoginAdmin } from "./pages/LoginAdmin/LoginAdmin";
+import { ViewAdmin } from "./pages/LoginAdmin/ViewAdmin";
+import { EditAdmin } from "./pages/LoginAdmin/EditAdmin";
+
 // Create the router using createBrowserRouter and createRoutesFromElements
 
 export const router = createBrowserRouter(
@@ -97,6 +104,15 @@ export const router = createBrowserRouter(
         <Route path="/candidate_publications/add" element={<AddCandidatePublication />} />
         <Route path="/candidate_publications/edit/:candidatePublicationId" element={<EditCandidatePublication />} />
         <Route path="/candidate_publications/view/:candidatePublicationId" element={<ViewCandidatePublication />} />
+
+        
+        <Route path="/admin/login" element={<LoginAdmin />} />
+        <Route path="/admin/signup" element={<SignUpAdmin />} />
+        <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+        <Route path="/admin/list" element={<Admins />} />
+        <Route path="/admin/view/:adminId" element={<ViewAdmin />} />
+        <Route path="/admin/edit/:adminId" element={<EditAdmin />} />
+      
 
       {/* Close the Root Route */}
       </Route>
