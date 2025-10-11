@@ -16,8 +16,7 @@ class RoleEnum(enum.Enum):
 class User(db.Model):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(
-        String(120), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     phone: Mapped[str] = mapped_column(String(20), nullable=True)
     first_name: Mapped[str] = mapped_column(String(50), nullable=True)
     last_name: Mapped[str] = mapped_column(String(50), nullable=True)
@@ -43,10 +42,9 @@ class User(db.Model):
             "last_name": self.last_name,
             "city": self.city,
             "profile_image": self.profile_image,
-            "role": self.role.value,
+            "role": self.role.value if self.role else None,
             "is_active": self.is_active
         }
-
 
 class Publication(db.Model):
     __tablename__ = "publication"

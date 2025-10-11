@@ -3,6 +3,7 @@ import { Admins } from "./pages/LoginAdmin/Admin";
 export const initialStore=()=>{
   return{
     message: null,
+    auth: null,
     users: [],
     publications: [],
     media: [],
@@ -15,6 +16,9 @@ export const initialStore=()=>{
 }
 export default function storeReducer(store, action = {}) {
   switch (action.type) {
+    case "SET_AUTH":
+      return { ...store, auth: action.payload };
+
     case "set_hello":
       return {
         ...store,

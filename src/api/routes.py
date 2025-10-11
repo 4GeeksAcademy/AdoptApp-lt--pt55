@@ -3,7 +3,7 @@ from api.models import Publication, db, User, Media, Review, Favorite, Follower,
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
-from api.models import Admin, db
+from api.models import Admin, db, User
 from flask_jwt_extended import create_access_token
 
 api = Blueprint('api', __name__)
@@ -123,6 +123,37 @@ def delete_user(user_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+# ----------------- USER LOGIN ----------------------------
+
+@api.route('/login/user', methods=['POST'])
+def login_user():
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
+
+        if not email or not password:
+            return jsonify({"error": "Email and password are required"}), 400
+
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        if not check_password_hash(user.password, password):
+            return jsonify({"error": "Invalid password"}), 401
+
+        access_token = create_access_token(identity=user.id)
+
+        return jsonify({
+            "msg": "Login successful",
+            "role": user.role.value,
+            "token": access_token,
+            "user": user.serialize()
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ----------------- PUBLICATIONS CRUD ----------------------------
 
