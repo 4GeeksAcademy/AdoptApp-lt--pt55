@@ -3,7 +3,7 @@ import {useGlobalReducer} from "../../hooks/useGlobalReducer.jsx";
 import { useNavigate, Link } from "react-router-dom";
 import { LogoutButton } from "../../components/LogoutButton";
 
-export const LoginAdmin = () => {
+export const LoginUser = () => {
 
     const navigate = useNavigate();
     const API = import.meta.env.VITE_BACKEND_URL;
@@ -25,7 +25,7 @@ export const LoginAdmin = () => {
 
         setLoading(true);
 
-        fetch(`${API}/api/admins/login`, {
+        fetch(`${API}/api/login/user`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: email.trim().toLowerCase(), password })
@@ -43,7 +43,7 @@ export const LoginAdmin = () => {
 
                 // ======= AUTH UNIFICADO ======= //
                 const role = data?.role;
-                const user = data?.admin;
+                const user = data?.user;
                 const token = data?.token;
                 const auth = { role, token, user };
 
@@ -54,10 +54,11 @@ export const LoginAdmin = () => {
 
                 sessionStorage.removeItem("token");
                 sessionStorage.removeItem("user_id");
+
                 dispatch({ type: "SET_AUTH", payload: auth });
 
                 setOkMsg("Session started successfully");
-                navigate("/admingit stathboard");
+                navigate("/users/dashboard");
 
             })
             .catch((err) => setErrMsg(err.message || "unexpected error"))
@@ -66,7 +67,7 @@ export const LoginAdmin = () => {
 
     return (
         <div className="container mt-5">
-            <h1 className="mb-5">Sign in as Admin</h1>  
+            <h1 className="mb-5">Sign in as User</h1>  
 
             <form className="mt-3" onSubmit={handleSubmit}>
                 <div className="mb-3 row">
@@ -123,7 +124,7 @@ export const LoginAdmin = () => {
             </form>
 
             <div className="d-flex gap-2 mt-5 justify-content-end">
-                <Link to="/admin/signup" className="btn btn-sm btn-outline-warning mt-3" style={{ border: "none" }}>Create Account</Link>
+                <Link to="/user/signup" className="btn btn-sm btn-outline-warning mt-3" style={{ border: "none" }}>Create Account</Link>
             </div>
 
         </div>

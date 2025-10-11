@@ -14,6 +14,9 @@ import { Users } from "./pages/Users/Users";
 import { AddUsers } from "./pages/Users/AddUsers";
 import { EditUsers } from "./pages/Users/EditUsers";
 import { ViewUsers } from "./pages/Users/ViewUsers";
+import { DashboardUser } from "./pages/LoginUser/DashboardUser";
+import { SignUpUser } from "./pages/LoginUser/SignUpUser";
+import { LoginUser } from "./pages/LoginUser/LoginUser";
 
 import { Publications } from "./pages/Publications/Publications";
 import { AddPublications } from "./pages/Publications/AddPublications";
@@ -74,6 +77,9 @@ export const router = createBrowserRouter(
         <Route path="/users/addUser" element={<AddUsers />} />
         <Route path="/users/edit/:userId" element={<EditUsers />} />
         <Route path="/users/view/:userId" element={<ViewUsers />} />
+        <Route path="/user/login" element={<LoginUser />} />
+        <Route path="/user/signup" element={<SignUpUser />} />
+        <Route path="/users/dashboard" element={<DashboardUser />} />
 
         <Route path="/publications" element={<Publications />} />
         <Route path="/publications/addPublication" element={<AddPublications />} />
