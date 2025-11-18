@@ -72,8 +72,8 @@ return (
                         {store.users.map((user) => (
                             <tr key={user.id}>
                                 <td><strong>{user.id}</strong></td>
-                                <td>{user.firstname}</td>
-                                <td>{user.lastname}</td>
+                                <td>{user.first_name}</td>
+                                <td>{user.last_name}</td>
                                 <td>{user.email}</td>
                                 <td>{user.phone || "—"}</td>
                                 <td>

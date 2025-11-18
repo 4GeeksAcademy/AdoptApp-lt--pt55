@@ -5,6 +5,9 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import Admin, db, User
 from flask_jwt_extended import create_access_token
+import os
+
+
 
 api = Blueprint('api', __name__)
 
@@ -20,7 +23,6 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
-
 # ----------------- USERS CRUD ----------------------------
 
 @api.route('/users', methods=['POST'])
@@ -39,7 +41,12 @@ def create_user():
 
         user = User(
             email=data['email'],
-            password=generate_password_hash(data['password']),  # store hashed password
+            password=generate_password_hash(data['password']),
+            first_name=data.get('firstname'),
+            last_name=data.get('lastname'),
+            phone=data.get('phone'),
+            city=data.get('city'),
+            profile_image=data.get('profile_image'),
             role=data.get('role', 'user'),
             is_active=data.get('is_active', True)
         )
@@ -116,6 +123,9 @@ def update_user(user_id):
 def delete_user(user_id):
     try:
         user = User.query.get_or_404(user_id)
+        Follower.query.filter(
+            (Follower.follower_id == user_id) | (Follower.followed_id == user_id)
+        ).delete(synchronize_session=False)
         db.session.delete(user)
         db.session.commit()
         return jsonify({'message': 'User successfully deleted'}), 200
@@ -195,6 +205,7 @@ def get_publications():
         return jsonify([pub.serialize() for pub in publications]), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 
 @api.route('/publications/<int:publication_id>', methods=['GET'])
@@ -788,3 +799,38 @@ def admin_login():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# ----------------- PUBLICATION PREVIEW ----------------------------
+@api.route('/publications/preview', methods=['GET'])
+def get_publication_previews():
+    try:
+        publications = Publication.query.all()
+        previews = [p.serialize_preview() for p in publications]
+        return jsonify(previews), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+# ----------------- IMAGE UPLOAD ----------------------------
+@api.route('/upload', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({"error": "No se encontró ningún archivo"}), 400
+
+    image = request.files['image']
+
+    image = request.files['image']
+
+    upload_folder = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+    os.makedirs(upload_folder, exist_ok=True)
+
+    image_path = os.path.join(upload_folder, image.filename)
+    image.save(image_path)
+
+    relative_path = f"{image.filename}"
+
+    return jsonify({
+        "message": "Imagen subida correctamente",
+        "image_url": relative_path
+    }), 200
+
