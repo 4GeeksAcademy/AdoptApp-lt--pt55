@@ -11,20 +11,27 @@ export const initialStore=()=>{
     favorites: [],
     followers: [],
     candidate_publications: [],
-    Admin: []
+    Admin: [],
+    landing_previews: [],
   };
 }
+
 export default function storeReducer(store, action = {}) {
   switch (action.type) {
+
     case "SET_AUTH":
       return { ...store, auth: action.payload };
+
+    case "CLEAR_AUTH":
+      return { ...store, auth: null }; 
 
     case "set_hello":
       return {
         ...store,
         message: action.payload
       };
-      /* USERS */
+
+    /* USERS */
     case "SET_USERS":
       return { ...store, users: action.payload };
 
@@ -44,8 +51,8 @@ export default function storeReducer(store, action = {}) {
         ...store,
         users: store.users.filter((u) => u.id !== action.payload)
       };
-      /* PUBLICATIONS */
-    
+
+    /* PUBLICATIONS */    
     case "SET_PUBLICATIONS":
       return { ...store, publications: action.payload };
 
@@ -65,7 +72,8 @@ export default function storeReducer(store, action = {}) {
         ...store,
         publications: store.publications.filter((p) => p.id !== action.payload)
       };
-      /* MEDIA */
+
+    /* MEDIA */
     case "SET_MEDIA":
       return { ...store, media: action.payload };
 
@@ -86,7 +94,6 @@ export default function storeReducer(store, action = {}) {
         media: store.media.filter((m) => m.id !== action.payload)
       };
 
-
     case "SET_REVIEWS":
       return { ...store, reviews: action.payload };
 
@@ -106,7 +113,8 @@ export default function storeReducer(store, action = {}) {
         ...store,
         reviews: store.reviews.filter((r) => r.id !== action.payload)
       };
-     /* FAVORITES */
+
+    /* FAVORITES */
     case "SET_FAVORITES":
       return { ...store, favorites: action.payload };
 
@@ -126,12 +134,14 @@ export default function storeReducer(store, action = {}) {
         ...store,
         favorites: store.favorites.filter((f) => f.id !== action.payload)
       };
-      /* FOLLOWERS */
+
+    /* FOLLOWERS */
     case "SET_FOLLOWERS":
       return { ...store, followers: action.payload };
 
     case "ADD_FOLLOWER":
       return { ...store, followers: [...store.followers, action.payload] };
+
     case "UPDATE_FOLLOWER":
       return {
         ...store,
@@ -139,11 +149,14 @@ export default function storeReducer(store, action = {}) {
           f.id === action.payload.id ? action.payload : f
         )
       };
-       /* CANDIDATE PUBLICATIONS */
-          case "SET_CANDIDATE_PUBLICATIONS":
+
+    /* CANDIDATE PUBLICATIONS */
+    case "SET_CANDIDATE_PUBLICATIONS":
       return { ...store, candidate_publications: action.payload };
+
     case "ADD_CANDIDATE_PUBLICATION":
       return { ...store, candidate_publications: [...store.candidate_publications, action.payload] };
+
     case "UPDATE_CANDIDATE_PUBLICATION":
       return {
         ...store,
@@ -157,23 +170,43 @@ export default function storeReducer(store, action = {}) {
         ...store,
         candidate_publications: store.candidate_publications.filter((cp) => cp.id !== action.payload)
       };
-       /* ADMIN */
+
+    /* ADMIN */
     case "SET_ADMIN":
       return { ...store, admins: action.payload };
+
     case "ADD_ADMIN":
       return { ...store, admins: [...store.admins, action.payload] };
+
     case "DELETE_ADMIN":
       return {
         ...store,
-        admins: store.admins.filter((ad) => ad.id !== action.payload),
+        admins: store.admins.filter((ad) => ad.id !== action.payload)
       };
+
     case "UPDATE_ADMIN":
       return {
         ...store,
         admins: store.admins.map((ad) =>
           ad.id === action.payload.id ? action.payload : ad
-        ),
+        )
       };
+
+    /* LANDING PREVIEWS */
+    case "SET_LANDING_PREVIEWS":
+      return { ...store, landing_previews: action.payload };
+
+    case "ADD_LANDING_PREVIEW":
+      return { ...store, landing_previews: [...store.landing_previews, action.payload] };
+
+    case "UPDATE_LANDING_PREVIEW":
+      return {
+        ...store,
+        landing_previews: store.landing_previews.map((lp) =>
+          lp.id === action.payload.id ? action.payload : lp
+        )
+      };
+
     default:
       throw Error("Unknown action: " + action.type);
   }

@@ -15,7 +15,8 @@ from api.commands import setup_commands
 
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
-static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../dist/')
+static_file_dir = os.path.join(os.path.dirname(
+    os.path.realpath(__file__)), '../dist/')
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -23,14 +24,15 @@ app.url_map.strict_slashes = False
 
 CORS(
     app,
-    resources={r"/*": {"origins": "https://bug-free-sniffle-jwxq56476793qjwj-3000.app.github.dev"}},
+    resources={r"/*": {"origins": "*"}},
     supports_credentials=True
 )
 
 
 db_url = os.getenv("DATABASE_URL")
 if db_url:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
+        "postgres://", "postgresql://")
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 
@@ -73,6 +75,13 @@ def serve_any_other_file(path):
     response = send_from_directory(static_file_dir, path)
     response.cache_control.max_age = 0
     return response
+
+
+@app.route('/media/<path:filename>')
+def serve_media(filename):
+    media_dir = os.path.join(os.path.dirname(
+        os.path.realpath(__file__)), 'media')
+    return send_from_directory(media_dir, filename)
 
 
 if __name__ == '__main__':
